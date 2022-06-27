@@ -47,9 +47,10 @@ jobs:
             echo "PR_MERGEABLE=$(jq -rc .mergeable ${pr_detail_file})" | tee -a "${GITHUB_ENV}"
             echo "REMAINING_COMMITS_FILE=remaining_commits.txt" | tee -a "${GITHUB_ENV}"           
             echo "NEW_COMMITS_FILE=new_commits.txt" | tee -a "${GITHUB_ENV}"
+
       - name: Check comment user permission
         run: |
-            comment_user_permission=$(gh api repos/"${OWNER}"/"${REPO}"/collaborators/lepapareil/permission -q .permission)
+            comment_user_permission=$(gh api repos/"${OWNER}"/"${REPO}"/collaborators/"${COMMENT_USER_LOGIN}"/permission -q .permission)
             if [ "${comment_user_permission}" = "admin" ] ; then
                 echo "  - ✅ You have the ${comment_user_permission} permission then you are allowed to accept pull request n°${PR_NUMBER}"
             else
@@ -58,6 +59,7 @@ jobs:
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1
             fi
+
       - name: Check if pull request state is open
         run: |
             if [ "${{ env.PR_STATE }}" = "open" ] ; then
@@ -68,6 +70,7 @@ jobs:
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1         
             fi
+
       - name: Check if pull request is ready
         run: |
             if [ "${{ env.PR_DRAFT }}" = "false" ] ; then
@@ -78,6 +81,7 @@ jobs:
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1         
             fi
+
       - name: Check if pull request is mergeable
         run: |
             if [ "${{ env.PR_MERGEABLE }}" = "true" ] ; then
@@ -88,6 +92,7 @@ jobs:
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1         
             fi
+
       - name: Add remote source branch
         run: |
             if [ "${{ env.HEAD_TYPE }}" = "fork" ] ; then
@@ -98,6 +103,7 @@ jobs:
             else
                 echo "  - ✅ source branch is from origin repo"
             fi
+
       - name: Check if source branch is rebased from target branch 
         run: |
             git log --oneline --cherry ${{ env.HEAD_TYPE }}/${{ env.HEAD_REF }}...origin/${{ env.BASE_REF }} > "${{ env.REMAINING_COMMITS_FILE }}" && exit_code=0 || exit_code=1
@@ -116,9 +122,11 @@ jobs:
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1
             fi
+
       - name: Get new commits list
         run: |
             git log --oneline --cherry origin/${{ env.BASE_REF }}...${{ env.HEAD_TYPE }}/${{ env.HEAD_REF }} | tee ${{ env.NEW_COMMITS_FILE }}
+
       - name: Merge fast forward head ref to base ref 
         run: |
             git config --local user.email "action@github.com"
@@ -141,6 +149,7 @@ jobs:
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1         
             fi
+
       - name: Close pull request
         run: |
             comment="✅ Pull request accepted and closed by \`${COMMENT_USER_LOGIN}\` with fast forward merge."
