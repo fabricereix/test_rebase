@@ -19,12 +19,6 @@ jobs:
     if: ${{ github.event.issue.pull_request && github.event.comment.body == '/accept'}}
     steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ env.BASE_REF }}
-          fetch-depth: 0
-
       - name: Init all internal env vars       
         run: |
             pr_detail_file="pr_detail.json"
@@ -47,6 +41,12 @@ jobs:
             echo "PR_MERGEABLE=$(jq -rc .mergeable ${pr_detail_file})" | tee -a "${GITHUB_ENV}"
             echo "REMAINING_COMMITS_FILE=remaining_commits.txt" | tee -a "${GITHUB_ENV}"           
             echo "NEW_COMMITS_FILE=new_commits.txt" | tee -a "${GITHUB_ENV}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BASE_REF }}
+          fetch-depth: 0
 
       - name: Check comment user permission
         run: |
