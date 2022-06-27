@@ -100,7 +100,7 @@ jobs:
                 git remote --verbose
                 git fetch --all
             fi
-            echo "  - ✅ Source branch is from ${env.HEAD_TYPE} repo"
+            echo "  - ✅ Source branch is from ${{ env.HEAD_TYPE }} repo"
 
       - name: Check if source branch is rebased from target branch 
         run: |
