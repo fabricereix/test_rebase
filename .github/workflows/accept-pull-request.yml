@@ -99,6 +99,7 @@ jobs:
                 git remote add fork https://github.com/${{ env.HEAD_REPO_FULL_NAME}}
                 git remote --verbose
                 git fetch --all
+            fi
             echo "  - ✅ Source branch is from ${env.HEAD_TYPE} repo"
 
       - name: Check if source branch is rebased from target branch 
