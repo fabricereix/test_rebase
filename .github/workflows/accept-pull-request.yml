@@ -87,7 +87,7 @@ jobs:
             if [ "${{ env.PR_MERGEABLE }}" = "true" ] ; then
                 echo "  - ✅ Pull request mergeable state is ${{ env.PR_MERGEABLE }}."
             else
-                comment="❌Pull request is not mergeable, please check conflicts with target \`${{ env.BASE_REF }}\` branch and pull request messages."
+                comment="❌ Pull request is not mergeable, please check unresolved discussions and pull request messages."
                 echo "  - ${comment}"
                 gh pr comment "${PR_NUMBER}" --body "${comment}"
                 exit 1         
@@ -99,10 +99,7 @@ jobs:
                 git remote add fork https://github.com/${{ env.HEAD_REPO_FULL_NAME}}
                 git remote --verbose
                 git fetch --all
-                echo "  - ✅ source branch is from fork repo"
-            else
-                echo "  - ✅ source branch is from origin repo"
-            fi
+            echo "  - ✅ Source branch is from ${env.HEAD_TYPE} repo"
 
       - name: Check if source branch is rebased from target branch 
         run: |
